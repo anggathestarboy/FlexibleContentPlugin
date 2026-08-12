@@ -2,6 +2,8 @@
     use Statikbe\FilamentFlexibleContentBlockPages\Facades\FilamentFlexibleContentBlockPages;
     use Statikbe\FilamentFlexibleContentBlockPages\FlexibleContentBlockPagesPanel;
     use Statikbe\FilamentFlexibleContentBlockPages\Models\Settings;
+    use Statikbe\FilamentFlexibleContentBlockPages\Models\Menu;
+    use Statikbe\FilamentFlexibleContentBlockPages\Components\Data\MenuData;
     use Statikbe\FilamentFlexibleContentBlocks\Filament\Form\Fields\Blocks\CallToActionField;
     use Statikbe\FilamentFlexibleContentBlocks\Filament\Form\Fields\Blocks\Data\CallToActionData;
     use Statikbe\FilamentFlexibleContentBlocks\Filament\Form\Fields\Groups\HeroCallToActionSection;
@@ -18,6 +20,9 @@
     $heroImageTitle = $page->getHeroImageTitle();
     $heroImageCopyright = $page->getHeroImageCopyright();
 
+    $mainMenu = Menu::code('main')->first();
+    $menuItems = $mainMenu ? MenuData::create($mainMenu, app()->getLocale())->items : collect();
+
     $buttonStyleClasses = CallToActionField::getButtonStyleClasses(HeroCallToActionSection::class);
     $heroCallToActions = collect($page->hero_call_to_actions ?? [])
         ->map(fn (array $callToAction) => CallToActionData::create($callToAction, $buttonStyleClasses))
@@ -32,10 +37,43 @@
 
     {{-- Header --}}
     <header class="sticky top-0 z-50 border-b border-zinc-200 bg-white/90 backdrop-blur">
-        <div class="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+        <div class="mx-auto flex max-w-5xl items-center justify-between gap-6 px-4 py-3">
             <a href="{{ url('/') }}" class="text-xl font-bold tracking-tight text-zinc-900">
-                My Site
+                {{ flexiblePagesSetting(Settings::SETTING_SITE_TITLE) }}
             </a>
+            <div class="flex flex-1 items-center justify-center">
+                @if ($menuItems->isNotEmpty())
+                    <ul class="flex items-center gap-1">
+                        @foreach ($menuItems as $menuItem)
+                            <li class="group relative">
+                                <a href="{{ $menuItem->url }}"
+                                   @if ($menuItem->target !== '_self') target="{{ $menuItem->target }}" rel="noopener noreferrer" @endif
+                                   class="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 hover:text-zinc-900 {{ $menuItem->isCurrentMenuItem() ? 'text-zinc-900' : 'text-zinc-700' }}">
+                                    {{ $menuItem->label }}
+                                    @if ($menuItem->hasChildren())
+                                        <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                                        </svg>
+                                    @endif
+                                </a>
+                                @if ($menuItem->hasChildren())
+                                    <ul class="invisible absolute left-0 top-full z-50 mt-2 min-w-52 rounded-xl border border-zinc-200 bg-white p-2 opacity-0 shadow-lg transition-opacity group-hover:visible group-hover:opacity-100">
+                                        @foreach ($menuItem->children as $child)
+                                            <li>
+                                                <a href="{{ $child->url }}"
+                                                   @if ($child->target !== '_self') target="{{ $child->target }}" rel="noopener noreferrer" @endif
+                                                   class="block rounded-lg px-3 py-2 text-sm text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900">
+                                                    {{ $child->label }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
             <div class="flex items-center gap-4">
                 <x-flexible-pages-language-switch/>
             </div>

@@ -337,7 +337,7 @@ return [
         | will be used as the canonical URL in the sitemap when multiple
         | language versions of a page exist.
         */
-        'default_canonical_locale' => 'nl',
+        'default_canonical_locale' => 'id',
 
         /*
         | The service class responsible for generating the sitemap.
