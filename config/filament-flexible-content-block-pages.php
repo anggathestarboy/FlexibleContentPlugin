@@ -258,6 +258,7 @@ return [
     */
     'page_templates' => [
         // Page::HOME_PAGE => 'pages.home',
+        'TESTING' => 'pages.testing',
     ],
 
     /*
