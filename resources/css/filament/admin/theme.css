@@ -1,0 +1,10 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+@source "../../../../vendor/statikbe/laravel-filament-flexible-content-block-pages/**/*.blade.php";
+@source "../../../../vendor/statikbe/laravel-filament-flexible-content-blocks/**/*.blade.php";
+@source "../../../../config/filament-flexible-content-blocks.php";
+@source "../../../../vendor/solution-forest/filament-tree/resources/**/*.blade.php";
+
