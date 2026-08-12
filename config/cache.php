@@ -129,8 +129,12 @@ return [
     | storage. By default, no PHP classes will be unserialized from your
     | cache to prevent gadget chain attacks if your APP_KEY is leaked.
     |
+    | The statikbe flexible-content-blocks packages cache serialized Eloquent
+    | models, so object unserialization must be enabled for them to work.
+    | @see https://laravel.com/docs/12.x/cache#storing-serializable-classes
+    |
     */
 
-    'serializable_classes' => false,
+    'serializable_classes' => true,
 
 ];
