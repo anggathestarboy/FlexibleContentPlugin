@@ -49,6 +49,7 @@ class NewsResource extends Resource
                 FileUpload::make('image')
                     ->image()
                     ->imageEditor()
+                    ->disk('public')
                     ->directory('news')
                     ->visibility('public')
                     ->columnSpanFull(),
@@ -60,7 +61,8 @@ class NewsResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('image')
-                    ->label('Image'),
+                    ->label('Image')
+                    ->disk('public'),
                 TextColumn::make('title')
                     ->searchable()
                     ->sortable(),

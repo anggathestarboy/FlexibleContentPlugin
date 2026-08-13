@@ -36,6 +36,22 @@
         ->values();
 
     $latestNews = \App\Models\News::query()->latest()->take(3)->get();
+
+    use Statikbe\FilamentFlexibleContentBlocks\ContentBlocks\CollapsibleGroupBlock;
+
+    $contentBlockClasses = collect($page::registerContentBlocks())
+        ->mapWithKeys(fn ($class) => [$class::getName() => $class]);
+
+    $collapsibleGroupInstances = [];
+    $contentBlockData = [];
+
+    foreach (collect($page->content_blocks ?? []) as $blockData) {
+        if (($blockData['type'] ?? null) === CollapsibleGroupBlock::getName()) {
+            $collapsibleGroupInstances[] = new CollapsibleGroupBlock($page, $blockData['data']);
+        } else {
+            $contentBlockData[] = $blockData;
+        }
+    }
 @endphp
 
 <x-layouts.app>
@@ -132,7 +148,16 @@
 
     {{-- Content blocks --}}
     <main class="mx-auto max-w-6xl px-4 py-12">
-        <x-flexible-content-blocks :page="$page" />
+        <div id="content-blocks-wrapper">
+            @foreach ($contentBlockData as $blockData)
+                @if (($blockClass = $contentBlockClasses->get($blockData['type'] ?? null)) !== null)
+                    @php
+                        $block = new $blockClass($page, $blockData['data']);
+                    @endphp
+                    {{ $block->withAttributes([])->render()->with($block->data()) }}
+                @endif
+            @endforeach
+        </div>
     </main>
 
     @if ($latestNews->isNotEmpty())
@@ -149,5 +174,12 @@
                 </div>
             </div>
         </section>
+    @endif
+
+    @if ($collapsibleGroupInstances)
+        {{-- Collapsible text group (accordion) --}}
+        @foreach ($collapsibleGroupInstances as $block)
+            {{ $block->withAttributes([])->render()->with($block->data()) }}
+        @endforeach
     @endif
 </x-layouts.app>

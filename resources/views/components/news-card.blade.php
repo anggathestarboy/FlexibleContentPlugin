@@ -10,7 +10,7 @@
         : '';
 @endphp
 
-<article class="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+<article class="group flex flex-col overflow-hidden cursor-pointer rounded-xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     @if ($imageUrl)
         <div class="aspect-video overflow-hidden">
             <img src="{{ $imageUrl }}" alt="{{ $news->title }}" loading="lazy"
