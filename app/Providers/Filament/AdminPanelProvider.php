@@ -18,6 +18,8 @@ use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
+use Statikbe\FilamentFlexibleContentBlockPages\Facades\FilamentFlexibleContentBlockPages;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -29,6 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->login()
+            ->plugin(SpatieTranslatablePlugin::make()
+                ->defaultLocales(FilamentFlexibleContentBlockPages::config()->getSupportedLocales()))
             ->colors([
                 'primary' => Color::Amber,
             ])

@@ -1,9 +1,6 @@
 @php
     use Statikbe\FilamentFlexibleContentBlockPages\Facades\FilamentFlexibleContentBlockPages;
     use Statikbe\FilamentFlexibleContentBlockPages\FlexibleContentBlockPagesPanel;
-    use Statikbe\FilamentFlexibleContentBlockPages\Models\Settings;
-    use Statikbe\FilamentFlexibleContentBlockPages\Models\Menu;
-    use Statikbe\FilamentFlexibleContentBlockPages\Components\Data\MenuData;
     use Statikbe\FilamentFlexibleContentBlocks\Filament\Form\Fields\Blocks\CallToActionField;
     use Statikbe\FilamentFlexibleContentBlocks\Filament\Form\Fields\Blocks\Data\CallToActionData;
     use Statikbe\FilamentFlexibleContentBlocks\Filament\Form\Fields\Groups\HeroCallToActionSection;
@@ -20,131 +17,137 @@
     $heroImageTitle = $page->getHeroImageTitle();
     $heroImageCopyright = $page->getHeroImageCopyright();
 
-    $mainMenu = Menu::code('main')->first();
-    $menuItems = $mainMenu ? MenuData::create($mainMenu, app()->getLocale())->items : collect();
-
     $buttonStyleClasses = CallToActionField::getButtonStyleClasses(HeroCallToActionSection::class);
     $heroCallToActions = collect($page->hero_call_to_actions ?? [])
-        ->map(fn (array $callToAction) => CallToActionData::create($callToAction, $buttonStyleClasses))
+        ->map(fn(array $callToAction) => CallToActionData::create($callToAction, $buttonStyleClasses))
         ->toArray();
+
+    $pageTags = collect($page->tags ?? [])
+        ->filter(fn($tag) => (bool) $tag->tagType?->has_seo_pages)
+        ->map(
+            fn($tag) => [
+                'name' => $tag->name,
+                'url' => FilamentFlexibleContentBlockPages::config()
+                    ->getRouteHelper()
+                    ->getTagPageUrl($tag, app()->getLocale()),
+                'colour' => $tag->tagType?->colour,
+            ],
+        )
+        ->values();
+
+    $latestNews = \App\Models\News::query()->latest()->take(3)->get();
 @endphp
 
-<x-flexible-pages-base-layout>
-    <x-flexible-pages-edit-page-button
-        :page="$page"
-        :edit-url="$pageResource::getUrl('edit', ['record' => $page], true, FlexibleContentBlockPagesPanel::ID)"
-    />
-
-    {{-- Header --}}
-    <header class="sticky top-0 z-50 border-b border-zinc-200 bg-white/90 backdrop-blur">
-        <div class="mx-auto flex max-w-5xl items-center justify-between gap-6 px-4 py-3">
-            <a href="{{ url('/') }}" class="text-xl font-bold tracking-tight text-zinc-900">
-                {{ flexiblePagesSetting(Settings::SETTING_SITE_TITLE) }}
-            </a>
-            <div class="flex flex-1 items-center justify-center">
-                @if ($menuItems->isNotEmpty())
-                    <ul class="flex items-center gap-1">
-                        @foreach ($menuItems as $menuItem)
-                            <li class="group relative">
-                                <a href="{{ $menuItem->url }}"
-                                   @if ($menuItem->target !== '_self') target="{{ $menuItem->target }}" rel="noopener noreferrer" @endif
-                                   class="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 hover:text-zinc-900 {{ $menuItem->isCurrentMenuItem() ? 'text-zinc-900' : 'text-zinc-700' }}">
-                                    {{ $menuItem->label }}
-                                    @if ($menuItem->hasChildren())
-                                        <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-                                        </svg>
-                                    @endif
-                                </a>
-                                @if ($menuItem->hasChildren())
-                                    <ul class="invisible absolute left-0 top-full z-50 mt-2 min-w-52 rounded-xl border border-zinc-200 bg-white p-2 opacity-0 shadow-lg transition-opacity group-hover:visible group-hover:opacity-100">
-                                        @foreach ($menuItem->children as $child)
-                                            <li>
-                                                <a href="{{ $child->url }}"
-                                                   @if ($child->target !== '_self') target="{{ $child->target }}" rel="noopener noreferrer" @endif
-                                                   class="block rounded-lg px-3 py-2 text-sm text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900">
-                                                    {{ $child->label }}
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                @endif
-            </div>
-            <div class="flex items-center gap-4">
-                <x-flexible-pages-language-switch/>
-            </div>
-        </div>
-    </header>
+<x-layouts.app>
+    <x-flexible-pages-edit-page-button :page="$page" :edit-url="$pageResource::getUrl('edit', ['record' => $page], true, FlexibleContentBlockPagesPanel::ID)" />
 
     {{-- Hero --}}
-    <section class="relative overflow-hidden bg-zinc-100">
+    <section class="relative overflow-hidden bg-zinc-900">
         @if ($hasHeroImage)
             <div class="absolute inset-0">
                 {!! $page->getHeroImageMedia(null, [
-                    'class' => 'w-full h-full object-cover object-center',
+                    'class' => 'h-full w-full object-cover object-center',
                     'loading' => 'eager',
                 ]) !!}
             </div>
-            <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-zinc-900/70"></div>
+            {{-- Gradient dari kiri ke kanan agar teks di kiri sangat kontras & gambar di kanan tetap terlihat jelas --}}
+            <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-transparent"></div>
         @endif
 
-        <div class="relative z-10 mx-auto max-w-4xl px-4 py-24 text-center sm:py-32">
-            @if ($heroImageTitle)
-                <p class="text-sm font-semibold uppercase tracking-[0.2em] {{ $hasHeroImage ? 'text-white/70' : 'text-zinc-500' }}">
-                    {{ FilamentFlexibleContentBlocks::replaceParameters($heroImageTitle) }}
-                </p>
-            @endif
+        {{-- Kontainer sejajar logo (max-w-6xl) dan teks rata kiri --}}
+        <div class="relative z-10 mx-auto max-w-6xl px-4 py-20 text-left sm:py-28">
+            <div class="max-w-3xl">
+                @if ($heroImageTitle)
+                    <p
+                        class="text-xs font-bold uppercase tracking-[0.25em] {{ $hasHeroImage ? 'text-emerald-400' : 'text-emerald-600' }}">
+                        {{ FilamentFlexibleContentBlocks::replaceParameters($heroImageTitle) }}
+                    </p>
+                @endif
 
-            @if ($title)
-                <h1 class="mt-3 text-4xl font-bold tracking-tight sm:text-6xl {{ $hasHeroImage ? 'text-white' : 'text-zinc-900' }}">
-                    {{ FilamentFlexibleContentBlocks::replaceParameters($title) }}
-                </h1>
-            @endif
+                @if ($title)
+                    <h1
+                        class="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl drop-shadow-sm {{ $hasHeroImage ? 'text-white' : 'text-zinc-900' }}">
+                        {{ FilamentFlexibleContentBlocks::replaceParameters($title) }}
+                    </h1>
+                @endif
 
-            @if ($introText)
-                <div class="mx-auto mt-6 max-w-2xl text-lg leading-relaxed sm:text-xl {{ $hasHeroImage ? 'text-white/90 [&_a]:text-white [&_a]:underline' : 'text-zinc-700 [&_a]:text-zinc-900 [&_a]:underline' }}">
-                    {!! FilamentFlexibleContentBlocks::replaceParameters($intro) !!}
-                </div>
-            @endif
+                @if ($introText)
+                    <div
+                        class="mt-6 text-lg leading-relaxed sm:text-xl {{ $hasHeroImage ? 'text-zinc-200 [&_a]:text-white [&_a]:underline' : 'text-zinc-700 [&_a]:text-zinc-900 [&_a]:underline' }}">
+                        {!! FilamentFlexibleContentBlocks::replaceParameters($intro) !!}
+                    </div>
+                @endif
 
-            @if (count($heroCallToActions))
-                <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
-                    @foreach ($heroCallToActions as $callToAction)
-                        <a href="{{ $callToAction->url }}"
-                           @if ($callToAction->openNewWindow) target="_blank" rel="noopener noreferrer" @endif
-                           title="{{ FilamentFlexibleContentBlocks::replaceParameters($callToAction->label) }}"
-                           class="inline-flex items-center rounded-full px-7 py-3 text-sm font-semibold transition-colors
+                @if (count($heroCallToActions))
+                    <div class="mt-10 flex flex-wrap items-center justify-start gap-4">
+                        @foreach ($heroCallToActions as $callToAction)
+                            <a href="{{ $callToAction->url }}"
+                                @if ($callToAction->openNewWindow) target="_blank" rel="noopener noreferrer" @endif
+                                title="{{ FilamentFlexibleContentBlocks::replaceParameters($callToAction->label) }}"
+                                class="inline-flex items-center justify-center rounded-xl px-8 py-3.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 shadow-md hover:shadow-lg
                                   {{ str_contains($callToAction->buttonStyle, 'ghost')
-                                      ? 'ring-1 ring-white/40 ' . ($hasHeroImage ? 'text-white hover:bg-white/20' : 'ring-zinc-300 text-zinc-900 hover:bg-zinc-100')
-                                      : ($hasHeroImage ? 'bg-white text-zinc-900 hover:bg-zinc-100' : 'bg-zinc-900 text-white hover:bg-zinc-700') }}">
-                            {{ FilamentFlexibleContentBlocks::replaceParameters($callToAction->label) }}
-                        </a>
-                    @endforeach
-                </div>
-            @endif
+                                      ? ($hasHeroImage
+                                          ? 'border border-white/30 text-white hover:bg-white/10 backdrop-blur-sm'
+                                          : 'border border-zinc-300 text-zinc-900 hover:bg-zinc-100')
+                                      : ($hasHeroImage
+                                          ? 'bg-emerald-600 text-white hover:bg-emerald-500'
+                                          : 'bg-emerald-600 text-white hover:bg-emerald-700') }}">
+                                {{ FilamentFlexibleContentBlocks::replaceParameters($callToAction->label) }} &rarr;
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
         </div>
 
         @if ($heroImageCopyright)
-            <small class="absolute bottom-2 right-2 z-10 rounded bg-black/40 px-2 py-1 text-xs text-white">
+            <small
+                class="absolute bottom-3 right-4 z-10 rounded-md bg-black/50 px-2.5 py-1 text-xs text-white/80 backdrop-blur-sm">
                 {{ FilamentFlexibleContentBlocks::replaceParameters($heroImageCopyright) }}
             </small>
         @endif
     </section>
 
+    
+
+    @if ($pageTags->isNotEmpty())
+        {{-- Tags --}}
+        <section class="border-b border-zinc-200 bg-white">
+            <div class="mx-auto max-w-6xl px-4 py-6">
+                <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-zinc-400">Tags</p>
+                <ul class="flex flex-wrap gap-2">
+                    @foreach ($pageTags as $pageTag)
+                        <li>
+                            <a href="{{ $pageTag['url'] }}"
+                                class="inline-flex items-center rounded-full border px-3.5 py-1.5 text-sm font-medium transition-opacity hover:opacity-80"
+                                style="border-color: {{ $pageTag['colour'] ?? '#d4d4d8' }}; color: {{ $pageTag['colour'] ?? '#3f3f46' }};">
+                                {{ $pageTag['name'] }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </section>
+    @endif
+
     {{-- Content blocks --}}
-    <main class="mx-auto max-w-5xl px-4 py-16">
-        <x-flexible-content-blocks :page="$page"/>
+    <main class="mx-auto max-w-6xl px-4 py-12">
+        <x-flexible-content-blocks :page="$page" />
     </main>
 
-    {{-- Footer --}}
-    <footer class="border-t border-zinc-200 bg-zinc-50">
-        <div class="mx-auto flex max-w-5xl flex-col items-center gap-2 px-4 py-8 text-center text-sm text-zinc-500">
-            <div>{{ flexiblePagesSetting(Settings::SETTING_FOOTER_COPYRIGHT) }}</div>
-            <div>&copy; {{ date('Y') }}</div>
-        </div>
-    </footer>
-</x-flexible-pages-base-layout>
+    @if ($latestNews->isNotEmpty())
+        {{-- News --}}
+        <section class="border-t border-zinc-200 bg-zinc-50">
+            <div class="mx-auto max-w-6xl px-4 py-12">
+                <h2 class="text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">News</h2>
+                <p class="mt-2 text-zinc-600">Berita terbaru dari kami.</p>
+
+                <div class="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                    @foreach ($latestNews as $newsItem)
+                        <x-news-card :news="$newsItem" />
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+</x-layouts.app>
