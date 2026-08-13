@@ -31,7 +31,7 @@
                     <li class="group relative">
                         <a href="{{ $menuItem->url }}"
                            @if ($menuItem->target !== '_self') target="{{ $menuItem->target }}" rel="noopener noreferrer" @endif
-                           class="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 hover:text-zinc-900 {{ $menuItem->isCurrentMenuItem() ? 'text-zinc-700' : 'text-green-700' }}">
+                           class="inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-100 hover:text-zinc-900 {{ $menuItem->isCurrentMenuItem() ? 'text-green-700' : 'text-gray-800' }}">
                             {{ $menuItem->label }}
                             @if ($menuItem->hasChildren())
                                 <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

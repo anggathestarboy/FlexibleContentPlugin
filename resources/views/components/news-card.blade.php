@@ -8,9 +8,10 @@
     $excerpt = filled($news->description)
         ? Str::limit(strip_tags((string) RichContentRenderer::make($news->description)->toText()), 140)
         : '';
+    $detailUrl = route('news.show', ['news' => $news]);
 @endphp
 
-<article class="group flex flex-col overflow-hidden cursor-pointer rounded-xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+<a href="{{ $detailUrl }}" class="group flex flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
     @if ($imageUrl)
         <div class="aspect-video overflow-hidden">
             <img src="{{ $imageUrl }}" alt="{{ $news->title }}" loading="lazy"
@@ -40,4 +41,4 @@
             {{ $news->author?->name ?? '—' }}
         </div>
     </div>
-</article>
+</a>

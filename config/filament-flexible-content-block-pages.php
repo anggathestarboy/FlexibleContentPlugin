@@ -260,6 +260,7 @@ return [
         // Page::HOME_PAGE => 'pages.home',
         'TESTING' => 'pages.testing',
         'spmb' => 'pages.spmb',
+        'berita' => 'pages.berita',
     ],
 
     /*

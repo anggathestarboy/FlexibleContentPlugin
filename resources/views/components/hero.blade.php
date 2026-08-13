@@ -50,10 +50,10 @@
             {{-- Kanan: desc + CTA --}}
             <div @class([
                 'flex flex-col items-start',
-                $hasImage ? 'text-gray-200 [&_a]:text-white [&_a]:underline' : 'text-zinc-700 [&_a]:text-zinc-900 [&_a]:underline',
+                $hasImage ? 'text-gray-50 [&_a]:text-white [&_a]:underline' : 'text-zinc-700 [&_a]:text-zinc-900 [&_a]:underline',
             ])>
                 @if ($intro)
-                    <div class="text-gray-300">
+                    <div class="">
                         {!! $intro !!}
                     </div>
                 @endif
