@@ -94,7 +94,7 @@ return [
         FilamentFlexibleContentBlockPagesConfig::TYPE_REDIRECT => RedirectResource::class,
         FilamentFlexibleContentBlockPagesConfig::TYPE_TAG => TagResource::class,
         FilamentFlexibleContentBlockPagesConfig::TYPE_TAG_TYPE => TagTypeResource::class,
-        FilamentFlexibleContentBlockPagesConfig::TYPE_MENU => MenuResource::class,
+        FilamentFlexibleContentBlockPagesConfig::TYPE_MENU => \App\Overrides\MenuResource::class,
     ],
 
     /*
