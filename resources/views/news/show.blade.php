@@ -12,8 +12,8 @@
         <x-header />
     </x-slot>
 
-    {{-- Back link --}}
-    <div class="border-b border-zinc-200 bg-white">
+    {{-- Back link (mobile only) --}}
+    <div class="border-b border-zinc-200 bg-white lg:hidden">
         <div class="mx-auto max-w-6xl px-4 py-4">
             <a href="{{ $newsListUrl }}" class="inline-flex items-center gap-2 text-sm font-medium text-zinc-500 transition-colors hover:text-emerald-700">
                 <i class="fa-solid fa-arrow-left"></i>
@@ -49,7 +49,7 @@
                 </figure>
             @endif
 
-            <div class="prose prose-lg prose-zinc mt-10 max-w-none [&_a]:font-medium [&_a]:text-emerald-700 [&_a]:underline [&_strong]:text-zinc-900 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-zinc-900 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:tracking-tight [&_h3]:text-zinc-900 [&_img]:rounded-xl [&_img]:shadow-sm">
+            <div class="prose prose-lg prose-zinc mt-10 max-w-none [&_p]:my-5 [&_p]:leading-[1.9] [&_a]:font-medium [&_a]:text-emerald-700 [&_a]:underline [&_a]:underline-offset-2 [&_strong]:font-semibold [&_strong]:text-zinc-900 [&_em]:text-zinc-700 [&_h1]:mb-4 [&_h1]:text-3xl [&_h1]:font-bold [&_h1]:tracking-tight [&_h1]:text-zinc-900 [&_h2]:mb-4 [&_h2]:mt-10 [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:tracking-tight [&_h2]:text-zinc-900 [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:text-xl [&_h3]:font-semibold [&_h3]:tracking-tight [&_h3]:text-zinc-900 [&_h4]:mb-3 [&_h4]:mt-8 [&_h4]:text-lg [&_h4]:font-semibold [&_h4]:tracking-tight [&_h4]:text-zinc-900 [&_ul]:my-5 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6 [&_ol]:my-5 [&_ol]:list-decimal [&_ol]:space-y-2 [&_ol]:pl-6 [&_li]:leading-relaxed [&_blockquote]:my-6 [&_blockquote]:border-l-4 [&_blockquote]:border-emerald-600 [&_blockquote]:bg-emerald-50 [&_blockquote]:px-5 [&_blockquote]:py-3 [&_blockquote]:text-zinc-600 [&_blockquote]:italic [&_table]:my-6 [&_table]:w-full [&_table]:border-collapse [&_th]:border [&_th]:border-zinc-300 [&_th]:bg-zinc-100 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_th]:text-sm [&_th]:font-semibold [&_th]:text-zinc-900 [&_td]:border [&_td]:border-zinc-300 [&_td]:px-3 [&_td]:py-2 [&_td]:text-zinc-700 [&_img]:my-6 [&_img]:rounded-xl [&_img]:shadow-sm [&_hr]:my-8 [&_hr]:border-zinc-200 [&_code]:rounded [&_code]:bg-zinc-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-sm [&_code]:text-zinc-800">
                 {!! $descriptionHtml !!}
             </div>
 

@@ -258,7 +258,7 @@ return [
     */
     'page_templates' => [
         // Page::HOME_PAGE => 'pages.home',
-        'TESTING' => 'pages.testing',
+        'HOME' => 'pages.testing',
         'spmb' => 'pages.spmb',
         'berita' => 'pages.berita',
     ],
